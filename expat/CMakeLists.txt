@@ -119,7 +119,11 @@ if(USE_libbsd)
 endif()
 if(NOT BUILD_shared)
   set_target_properties(expat PROPERTIES OUTPUT_NAME expat${ver})
+  if(WIN32)
+    target_compile_definitions(expat PUBLIC $<INSTALL_INTERFACE:XML_STATIC>)
+  endif()
 endif()
+target_include_directories(expat PUBLIC $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include${verDir}>)
 
 set(LIBCURRENT 7)   # sync
 set(LIBREVISION 7)  # with
@@ -147,7 +151,10 @@ endmacro()
 expat_install(TARGETS expat EXPORT ${targetsFile} RUNTIME DESTINATION bin
                       LIBRARY DESTINATION lib
                       ARCHIVE DESTINATION lib)
-expat_install(EXPORT ${targetsFile} DESTINATION lib/cmake)
+if(DEFINED XP_NAMESPACE)
+  set(nameSpace NAMESPACE ${XP_NAMESPACE}::)
+endif()
+expat_install(EXPORT ${targetsFile} DESTINATION lib/cmake ${nameSpace})
 
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix "\${prefix}/bin")
